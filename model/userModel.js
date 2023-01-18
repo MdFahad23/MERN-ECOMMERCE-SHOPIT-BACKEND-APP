@@ -23,6 +23,7 @@ const userSchema = Schema(
       minLength: 8,
       maxLength: 1024,
     },
+    photo: String,
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -39,6 +40,7 @@ userSchema.methods.generateJWT = function () {
       name: this.name,
       email: this.email,
       role: this.role,
+      photo: this.photo,
     },
     process.env.JWT_SECRET_KEY,
     { expiresIn: "7d" }

@@ -10,7 +10,9 @@ module.exports.signUp = async (req, res) => {
   user = await User.findOne({ email: req.body.email });
   if (user) return res.status(400).send("user already registered!");
 
-  user = new User(_.pick(req.body, ["name", "email", "password"]));
+  let photo = req.file ? req.file.filename : "";
+  let { name, email, password } = req.body;
+  user = new User({ name, email, password, photo });
 
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
@@ -21,7 +23,7 @@ module.exports.signUp = async (req, res) => {
   res.status(201).send({
     message: "Registration Successfully! ",
     token: token,
-    user: _.pick(result, ["_id", "name", "email"]),
+    user: _.pick(result, ["_id", "name", "email", "photo"]),
   });
 };
 
