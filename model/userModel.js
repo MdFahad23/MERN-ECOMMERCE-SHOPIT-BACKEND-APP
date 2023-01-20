@@ -2,6 +2,7 @@ const { Schema, model } = require("mongoose");
 const joi = require("joi");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 
 // Create User Schema
 const userSchema = Schema(
@@ -36,6 +37,21 @@ const userSchema = Schema(
   },
   { timestamps: true }
 );
+
+// Hashing password
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Compare Password
+userSchema.methods.comparePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 // Generate Token
 userSchema.methods.generateJWT = function () {

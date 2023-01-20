@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const _ = require("lodash");
 const { User, validate } = require("../model/userModel");
 const { sendEmail } = require("../utils/sendEmail");
+const crypto = require("crypto");
 
 // Create new User
 module.exports.signUp = async (req, res) => {
@@ -15,9 +16,6 @@ module.exports.signUp = async (req, res) => {
   let photo = req.file ? req.file.filename : "";
   let { name, email, password } = req.body;
   user = new User({ name, email, password, photo });
-
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt);
 
   const token = user.generateJWT();
 
@@ -34,18 +32,18 @@ module.exports.signIn = async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send("Invalided User!");
 
-  let validUser = await bcrypt.compare(req.body.password, user.password);
+  let validUser = await user.comparePassword(req.body.password);
   if (!validUser) return res.status(400).send("Invalided User!");
 
   let token = user.generateJWT();
   res.status(200).send({
     message: "Login Successfully! ",
     token: token,
-    user: _.pick(user, ["_id", "name", "email"]),
+    user: _.pick(user, ["_id", "name", "email", "photo"]),
   });
 };
 
-// Forgot Password
+// Forgot Password Send Email Token
 module.exports.forgotPassword = async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(404).send("User not Found!");
@@ -79,4 +77,39 @@ module.exports.forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
     return res.status(500).send(error.message);
   }
+};
+
+// Reset Password
+module.exports.resetPassword = async (req, res) => {
+  // creating token hash
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  let user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+  if (!user)
+    return res
+      .status(400)
+      .send("Reset Password Token is invalid or has been expired");
+
+  if (req.body.password !== req.body.confirmPassword)
+    return res.status(400).send("Password does not Match!");
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  const token = user.generateJWT();
+
+  const result = await user.save();
+
+  return res.status(200).send({
+    message: "Successfully password reset!",
+    token: token,
+    user: _.pick(result, ["_id", "name", "email", "photo"]),
+  });
 };
