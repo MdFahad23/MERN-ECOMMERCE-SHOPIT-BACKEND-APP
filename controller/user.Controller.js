@@ -147,8 +147,8 @@ module.exports.updatePassword = async (req, res) => {
   });
 };
 
-// Update User Profile
-module.exports.updateProfile = async (req, res) => {
+// Update User
+module.exports.updateUser = async (req, res) => {
   let newUserData = {
     name: req.body.name,
     email: req.body.email,
