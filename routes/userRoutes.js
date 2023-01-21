@@ -15,7 +15,7 @@ const upload = require("../middleware/multer");
 const authorize = require("../middleware/authorize");
 const admin = require("../middleware/admin");
 
-router.route("/register").post(signUp);
+router.route("/register").post(upload, signUp);
 router.route("/login").post(signIn);
 router.route("/password/forget").post(forgotPassword);
 router.route("/password/reset/:token").put(resetPassword);
