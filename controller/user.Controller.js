@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt");
 const _ = require("lodash");
 const { User, validate } = require("../model/userModel");
 const { sendEmail } = require("../utils/sendEmail");
@@ -109,6 +108,40 @@ module.exports.resetPassword = async (req, res) => {
 
   return res.status(200).send({
     message: "Successfully password reset!",
+    token: token,
+    user: _.pick(result, ["_id", "name", "email", "photo"]),
+  });
+};
+
+// Get User Details
+module.exports.getUserDetails = async (req, res) => {
+  let user = await User.findById(req.user._id);
+
+  return res.status(200).send({
+    success: true,
+    user: _.pick(user, ["_id", "name", "email", "photo"]),
+  });
+};
+
+// Update User Password
+module.exports.updatePassword = async (req, res) => {
+  let user = await User.findById(req.user._id);
+
+  let validPassword = await user.comparePassword(req.body.oldPassword);
+  if (!validPassword) return res.status(400).send("Old password is incorrect!");
+
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    return res.status(400).send("New Password doesn't Match!");
+  }
+
+  user.password = req.body.newPassword;
+
+  let token = user.generateJWT();
+
+  let result = await user.save();
+
+  return res.status(200).send({
+    success: true,
     token: token,
     user: _.pick(result, ["_id", "name", "email", "photo"]),
   });
