@@ -169,3 +169,15 @@ module.exports.updateUser = async (req, res) => {
     message: "User Update Successfully!",
   });
 };
+
+// Get All User(admin)
+module.exports.getAllUser = async (req, res) => {
+  const user = await User.find();
+
+  if (!user) return res.status(400).send("User Not Found!");
+
+  return res.status(200).send({
+    success: true,
+    user: _.pick(result, ["_id", "name", "email", "photo"]),
+  });
+};
