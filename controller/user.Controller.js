@@ -12,9 +12,7 @@ module.exports.signUp = async (req, res) => {
   user = await User.findOne({ email: req.body.email });
   if (user) return res.status(400).send("user already registered!");
 
-  let photo = req.file ? req.file.filename : "";
-  let { name, email, password } = req.body;
-  user = new User({ name, email, password, photo });
+  user = new User(_.pick(req.body, ["name", "email", "password"]));
 
   const token = user.generateJWT();
 
@@ -178,6 +176,21 @@ module.exports.getAllUser = async (req, res) => {
 
   return res.status(200).send({
     success: true,
-    user: _.pick(result, ["_id", "name", "email", "photo"]),
+    user: _.pick(user, ["_id", "name", "email", "photo"]),
+  });
+};
+
+// Get Single User(admin)
+module.exports.getSingleUser = async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user)
+    return res
+      .status(400)
+      .send(`User does not exist with Id: ${req.params.id}`);
+
+  return res.status(200).send({
+    success: true,
+    user: _.pick(user, ["_id", "name", "email", "photo"]),
   });
 };
