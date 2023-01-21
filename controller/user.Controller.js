@@ -146,3 +146,26 @@ module.exports.updatePassword = async (req, res) => {
     user: _.pick(result, ["_id", "name", "email", "photo"]),
   });
 };
+
+// Update User Profile
+module.exports.updateProfile = async (req, res) => {
+  let newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  if (req.file !== "") {
+    newUserData.photo = req.file.filename;
+  }
+
+  const users = await User.findByIdAndUpdate(req.user._id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  return res.status(200).send({
+    success: true,
+    message: "User Update Successfully!",
+  });
+};
