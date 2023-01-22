@@ -119,7 +119,7 @@ module.exports.getUserDetails = async (req, res) => {
 
   return res.status(200).send({
     success: true,
-    user: _.pick(user, ["_id", "name", "email", "photo"]),
+    user: _.pick(user, ["_id", "name", "email", "role", "photo"]),
   });
 };
 
