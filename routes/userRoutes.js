@@ -10,6 +10,8 @@ const {
   updateUser,
   getAllUser,
   getSingleUser,
+  updateUserRole,
+  deleteUser,
 } = require("../controller/user.Controller");
 const upload = require("../middleware/multer");
 const authorize = require("../middleware/authorize");
@@ -23,6 +25,10 @@ router.route("/me").get(authorize, getUserDetails);
 router.route("/password/update").put(authorize, updatePassword);
 router.route("/update/me").put(authorize, upload, updateUser);
 router.route("/admin/allUser").get(authorize, admin, getAllUser);
-router.route("/admin/singleUser/:id").get(authorize, admin, getSingleUser);
+router
+  .route("/admin/singleUser/:id")
+  .get(authorize, admin, getSingleUser)
+  .put(authorize, admin, updateUserRole)
+  .delete(authorize, admin, deleteUser);
 
 module.exports = router;

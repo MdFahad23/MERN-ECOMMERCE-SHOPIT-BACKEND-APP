@@ -196,3 +196,37 @@ module.exports.getSingleUser = async (req, res) => {
     user,
   });
 };
+
+// update User Role(admin)
+module.exports.updateUserRole = async (req, res) => {
+  let newUserData = {
+    role: req.body.role,
+  };
+
+  const users = await User.findByIdAndUpdate(req.params.id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  return res.status(200).send({
+    success: true,
+    message: "User Role Update Successfully!",
+  });
+};
+
+// Delete User(admin)
+module.exports.deleteUser = async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user)
+    return res
+      .status(400)
+      .send(`User does not exist with Id: ${req.params.id}`);
+
+  await user.remove();
+
+  res.status(200).send({
+    success: true,
+    message: "User Deleted Successfully",
+  });
+};
