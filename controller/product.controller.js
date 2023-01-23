@@ -26,8 +26,9 @@ module.exports.createProduct = async (req, res) => {
     if (files.photo) {
       fs.readFile(files.photo.filepath, (err, data) => {
         if (err) return res.status(400).send("problem in file data!");
+        console.log(files);
         product.photo.data = data;
-        product.photo.contentType = files.photo.type;
+        product.photo.contentType = files.photo.mimetype;
         product.save((err, result) => {
           if (err) return res.status(500).send("Internal Server error!");
           else
