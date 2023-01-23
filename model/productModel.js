@@ -28,12 +28,10 @@ module.exports.Product = model(
         type: Number,
         required: true,
       },
-      photo: [
-        {
-          data: Buffer,
-          contentType: String,
-        },
-      ],
+      photo: {
+        data: Buffer,
+        contentType: String,
+      },
       user: {
         type: Schema.Types.ObjectId,
         ref: "User",

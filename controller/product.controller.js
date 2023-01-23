@@ -26,12 +26,8 @@ module.exports.createProduct = async (req, res) => {
     if (files.photo) {
       fs.readFile(files.photo.filepath, (err, data) => {
         if (err) return res.status(400).send("problem in file data!");
-        for (let i in product.photo) {
-          product.photo[i].data = data;
-          product.photo[i].contentType = files.photo.type;
-        }
-        // product.photo.data = data;
-        // product.photo.contentType = files.photo.type;
+        product.photo.data = data;
+        product.photo.contentType = files.photo.type;
         product.save((err, result) => {
           if (err) return res.status(500).send("Internal Server error!");
           else
@@ -72,4 +68,27 @@ module.exports.getProducts = async (req, res) => {
     .populate("user");
   if (!product) return res.status(404).send("Product Not Found!");
   else return res.status(200).send(product);
+};
+
+// Get ProductById
+module.exports.getProductById = async (req, res) => {
+  let productId = req.params.id;
+  const product = await Product.findById(productId)
+    .select({ photo: 0 })
+    .populate("category")
+    .populate("user");
+  if (!product) return res.status(404).send("Product Not Found!");
+  else return res.status(200).send(product);
+};
+
+// Get Product Image
+module.exports.getPhoto = async (req, res) => {
+  let productId = req.params.id;
+  const product = await Product.findById(productId).select({
+    photo: 1,
+    _id: 0,
+  });
+  res.set("Content-Type", product.photo.contentType);
+  if (!product) return res.status(404).send("Product Image Not Found!");
+  else return res.status(200).send(product.photo.data);
 };
