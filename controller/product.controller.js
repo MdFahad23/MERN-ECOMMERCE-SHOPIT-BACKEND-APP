@@ -3,7 +3,7 @@ const formidable = require("formidable");
 const fs = require("fs");
 const { Product, validate } = require("../model/productModel");
 
-// Create Product
+// Create Product(admin)
 module.exports.createProduct = async (req, res) => {
   // Create from
   let from = new formidable.IncomingForm();
@@ -26,8 +26,12 @@ module.exports.createProduct = async (req, res) => {
     if (files.photo) {
       fs.readFile(files.photo.filepath, (err, data) => {
         if (err) return res.status(400).send("problem in file data!");
-        product.photo.data = data;
-        product.photo.contentType = files.photo.type;
+        for (let i in product.photo) {
+          product.photo[i].data = data;
+          product.photo[i].contentType = files.photo.type;
+        }
+        // product.photo.data = data;
+        // product.photo.contentType = files.photo.type;
         product.save((err, result) => {
           if (err) return res.status(500).send("Internal Server error!");
           else
@@ -50,4 +54,22 @@ module.exports.createProduct = async (req, res) => {
       return res.status(400).send("No image Provide!");
     }
   });
+};
+
+// Get all Product
+module.exports.getProducts = async (req, res) => {
+  // Get Product Query String
+  let order = req.query.order === "desc" ? -1 : 1;
+  let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
+  let limit = req.query.limit ? parseInt(req.query.limit) : 20;
+
+  // Get Product
+  const product = await Product.find()
+    .select({ photo: 0 })
+    .sort({ [sortBy]: order })
+    .limit(limit)
+    .populate("category")
+    .populate("user");
+  if (!product) return res.status(404).send("Product Not Found!");
+  else return res.status(200).send(product);
 };

@@ -12,5 +12,16 @@ module.exports = (app) => {
     app.use(morgan());
   }
   app.use(helmet());
-  app.use(compression());
+  app.use(
+    compression({
+      level: 6,
+      threshold: 10 * 1000,
+      filter: (req, res) => {
+        if (req.headers["x-no-compression"]) {
+          return false;
+        }
+        return compression.filter(req, res);
+      },
+    })
+  );
 };
