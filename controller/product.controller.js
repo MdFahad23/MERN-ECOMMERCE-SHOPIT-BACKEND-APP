@@ -2,6 +2,7 @@ const _ = require("lodash");
 const formidable = require("formidable");
 const fs = require("fs");
 const { Product, validate } = require("../model/productModel");
+const ApiFeatures = require("../utils/apiFeatures");
 
 // Create Product(admin)
 module.exports.createProduct = async (req, res) => {
@@ -52,27 +53,13 @@ module.exports.createProduct = async (req, res) => {
   });
 };
 
-// // Get all Product
-// module.exports.getProducts = async (req, res) => {
-//   // Get Product Query String
-//   let order = req.query.order === "desc" ? -1 : 1;
-//   let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
-//   let limit = req.query.limit ? parseInt(req.query.limit) : 20;
-
-//   // Get Product
-//   const product = await Product.find()
-//     .select({ photo: 0 })
-//     .sort({ [sortBy]: order })
-//     .limit(limit)
-//     .populate("category");
-//   if (!product) return res.status(404).send("Product Not Found!");
-//   else return res.status(200).send(product);
-// };
-
 // Get all Product
 module.exports.getProducts = async (req, res) => {
-  // Get Product
-  const product = await Product.find();
+  const apiFeature = new ApiFeatures(
+    Product.find().select({ photo: 0 }),
+    req.query
+  ).Search();
+  const product = await apiFeature.query;
 
   if (!product) return res.status(404).send("Product Not Found!");
   else return res.status(200).send(product);
@@ -80,15 +67,12 @@ module.exports.getProducts = async (req, res) => {
 
 // Get All Product (Admin)
 module.exports.getAdminProducts = async (req, res, next) => {
-  const products = await Product.find()
+  const product = await Product.find()
     .select({ photo: 0 })
     .populate("category")
     .populate("user");
 
-  res.status(200).json({
-    success: true,
-    products,
-  });
+  return res.status(200).send(product);
 };
 
 // Get ProductById(admin)
