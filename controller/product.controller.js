@@ -55,10 +55,16 @@ module.exports.createProduct = async (req, res) => {
 
 // Get all Product
 module.exports.getProducts = async (req, res) => {
+  let resultPerPage = 10;
+
   const apiFeature = new ApiFeatures(
-    Product.find().select({ photo: 0 }),
+    Product.find().select({ photo: 0 }).populate("category"),
     req.query
-  ).Search();
+  )
+    .Search()
+    .Filter()
+    .pagination(resultPerPage);
+
   const product = await apiFeature.query;
 
   if (!product) return res.status(404).send("Product Not Found!");
