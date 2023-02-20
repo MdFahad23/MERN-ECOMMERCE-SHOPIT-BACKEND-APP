@@ -59,7 +59,7 @@ module.exports.getProducts = async (req, res) => {
   let productCount = await Product.countDocuments();
 
   const apiFeature = new ApiFeatures(
-    Product.find().select({ photo: 0 }).populate("category"),
+    Product.find().populate("category"),
     req.query
   )
     .Search()
