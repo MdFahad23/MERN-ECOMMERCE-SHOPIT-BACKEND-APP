@@ -11,7 +11,7 @@ module.exports = (app) => {
   if (process.env.NODE_ENV === "development") {
     app.use(morgan());
   }
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: false }));
   app.use(
     compression({
       level: 6,
