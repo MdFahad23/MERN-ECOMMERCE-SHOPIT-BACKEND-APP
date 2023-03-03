@@ -74,6 +74,7 @@ module.exports.getProducts = async (req, res) => {
       success: true,
       productCount,
       product,
+      resultPerPage,
     });
 };
 
