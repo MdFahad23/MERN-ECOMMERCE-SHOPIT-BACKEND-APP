@@ -58,23 +58,29 @@ module.exports.getProducts = async (req, res) => {
   let resultPerPage = 20;
   let productCount = await Product.countDocuments();
 
-  const apiFeature = new ApiFeatures(
+  let apiFeature = new ApiFeatures(
     Product.find().select({ photo: 0 }).populate("category"),
     req.query
   )
     .Search()
-    .Filter()
-    .pagination(resultPerPage);
+    .Filter();
 
-  const product = await apiFeature.query;
+  let products = await apiFeature.query;
 
-  if (!product) return res.status(404).send("Product Not Found!");
+  let filteredProductsCount = products.length;
+
+  apiFeature.pagination(resultPerPage);
+
+  products = await apiFeature.query;
+
+  if (!products) return res.status(404).send("Product Not Found!");
   else
     return res.status(200).send({
       success: true,
       productCount,
-      product,
+      products,
       resultPerPage,
+      filteredProductsCount,
     });
 };
 
