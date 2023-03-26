@@ -7,7 +7,14 @@ const compression = require("compression");
 module.exports = (app) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(cors({ origin: "*" }));
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+    })
+  );
   if (process.env.NODE_ENV === "development") {
     app.use(morgan());
   }
