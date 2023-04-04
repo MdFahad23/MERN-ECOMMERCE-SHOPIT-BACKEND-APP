@@ -11,16 +11,17 @@ const cartItemSchema = Schema(
     count: {
       type: Number,
       default: 1,
-      minLength: 1,
-      maxLength: 5,
+      min: 1,
+      max: 5,
     },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      unique: true,
+      required: true,
     },
   },
   { timestamps: true }
 );
 
+module.exports.cartItemSchema = cartItemSchema;
 module.exports.CartItem = model("CartItem", cartItemSchema);

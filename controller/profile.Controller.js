@@ -23,9 +23,10 @@ module.exports.setProfile = async (req, res) => {
   let profile = await Profile.findOne({ user: userId });
   if (profile) {
     await Profile.updateOne({ user: userId }, userProfile);
+    return res.status(200).send({ message: "Updated Successfully!" });
   } else {
     profile = new Profile(userProfile);
     await profile.save();
+    return res.status(200).send({ message: "Profile Create Successfully!" });
   }
-  return res.status(200).send("Updated Successfully!");
 };
