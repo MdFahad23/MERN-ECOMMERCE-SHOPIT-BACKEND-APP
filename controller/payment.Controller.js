@@ -33,7 +33,8 @@ module.exports.initPayment = async (req, res) => {
     success_url: "http://localhost:3030/success",
     fail_url: "http://localhost:3030/fail",
     cancel_url: "http://localhost:3030/cancel",
-    ipn_url: "http://localhost:3030/ipn",
+    ipn_url:
+      "https://mern-ecommerce-shopit-backend-app.onrender.com/api/v1/payment/ipn",
     shipping_method: "Courier",
     product_name: "Computer.",
     product_category: "General",
