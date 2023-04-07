@@ -61,3 +61,7 @@ module.exports.initPayment = async (req, res) => {
   const SSLData = await SSLCommer.init(data);
   return res.status(200).send(SSLData);
 };
+
+module.exports.ipn = async (req, res) => {
+  console.log(req.body);
+};
