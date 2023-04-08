@@ -3,6 +3,8 @@ const SSLCommerzPayment = require("sslcommerz-lts");
 
 const { CartItem } = require("../model/cartItemModel");
 const { Profile } = require("../model/profileModel");
+const { Order } = require("../model/orderModel");
+const { Payment } = require("../model/paymentModel");
 
 const store_id = process.env.STORE_ID;
 const store_password = process.env.STORE_PASSWORD;
@@ -59,10 +61,35 @@ module.exports.initPayment = async (req, res) => {
   };
 
   const SSLCommer = new SSLCommerzPayment(store_id, store_password, is_live);
-  const SSLData = await SSLCommer.init(data);
-  return res.status(200).send(SSLData);
+  const response = await SSLCommer.init(data);
+
+  let order = new Order({
+    cartItems: cartItem,
+    user: userId,
+    transaction_id: tran_id,
+    address: profile,
+  });
+
+  if (response["status" === "SUCCESS"]) {
+    order.sessionKey = response.sessionkey;
+    await order.save();
+  }
+
+  return res.status(200).send(response);
 };
 
 module.exports.ipn = async (req, res) => {
-  console.log(req.body);
+  let payment = new Payment(req.body);
+  let tran_id = payment["tran_id"];
+  if (payment["status"] === "VALID") {
+    const order = await Order.updateOne(
+      { transaction_id: tran_id },
+      { status: "Complete" }
+    );
+    await CartItem.deleteMany(order.cartItems);
+  } else {
+    await Order.deleteOne({ transaction_id: tran_id });
+  }
+  await payment.save();
+  return res.status(200).send("IPN");
 };
