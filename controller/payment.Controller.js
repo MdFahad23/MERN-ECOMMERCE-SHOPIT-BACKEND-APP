@@ -70,7 +70,7 @@ module.exports.initPayment = async (req, res) => {
     address: profile,
   });
 
-  if (response["status" === "SUCCESS"]) {
+  if (response["status"] === "SUCCESS") {
     order.sessionKey = response.sessionkey;
     await order.save();
   }
