@@ -63,14 +63,13 @@ module.exports.initPayment = async (req, res) => {
   const SSLCommer = new SSLCommerzPayment(store_id, store_password, is_live);
   const response = await SSLCommer.init(data);
 
-  let order = new Order({
-    cartItems: cartItem,
-    user: userId,
-    transaction_id: tran_id,
-    address: profile,
-  });
-
   if (response["status"] === "SUCCESS") {
+    let order = new Order({
+      cartItems: cartItem,
+      user: userId,
+      transaction_id: tran_id,
+      address: profile,
+    });
     order.sessionKey = response.sessionkey;
     await order.save();
   }
