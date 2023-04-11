@@ -94,11 +94,7 @@ module.exports.ipn = async (req, res) => {
 
 // Get Order
 module.exports.GetOrder = async (req, res) => {
-  const userId = req.params.id;
-  const order = await Order.find({ user: userId }).populate("User");
-  if (!order) {
-    return res.status(404).send({ message: "Order not Found!" });
-  } else {
-    return res.status(200).send({ message: order });
-  }
+  const userId = req.user._id;
+  const order = await Order.find({ user: userId }).populate("user");
+  return res.status(200).send(order);
 };
