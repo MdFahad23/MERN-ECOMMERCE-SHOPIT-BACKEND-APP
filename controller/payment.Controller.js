@@ -10,6 +10,7 @@ const store_id = process.env.STORE_ID;
 const store_password = process.env.STORE_PASSWORD;
 const is_live = false;
 
+// Init Payment
 module.exports.initPayment = async (req, res) => {
   const userId = req.user._id;
   const cartItem = await CartItem.find({ user: userId });
@@ -77,14 +78,12 @@ module.exports.initPayment = async (req, res) => {
   return res.status(200).send(response);
 };
 
+// Receive IPN Message
 module.exports.ipn = async (req, res) => {
   let payment = new Payment(req.body);
   let tran_id = payment["tran_id"];
   if (payment["status"] === "VALID") {
-    const order = await Order.updateOne(
-      { transaction_id: tran_id },
-      { status: "Complete" }
-    );
+    const order = await Order.findOne({ transaction_id: tran_id });
     await CartItem.deleteMany(order.cartItems);
   } else {
     await Order.deleteOne({ transaction_id: tran_id });

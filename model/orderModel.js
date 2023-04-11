@@ -22,7 +22,7 @@ module.exports.Order = model(
       status: {
         type: String,
         default: "Pending",
-        enum: ["Pending", "Complete"],
+        enum: ["Pending", "Shipping", "Deliver"],
       },
       user: {
         type: Schema.Types.ObjectId,
