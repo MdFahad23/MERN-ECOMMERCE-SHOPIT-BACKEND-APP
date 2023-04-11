@@ -83,11 +83,22 @@ module.exports.ipn = async (req, res) => {
   let payment = new Payment(req.body);
   let tran_id = payment["tran_id"];
   if (payment["status"] === "VALID") {
-    const order = await Order.findOne({ transaction_id: tran_id });
+    const order = await Order.find({ transaction_id: tran_id });
     await CartItem.deleteMany(order.cartItems);
   } else {
     await Order.deleteOne({ transaction_id: tran_id });
   }
   await payment.save();
   return res.status(200).send("IPN");
+};
+
+// Get Order
+module.exports.GetOrder = async (req, res) => {
+  const userId = req.params.id;
+  const order = await Order.find({ user: userId }).populate("User");
+  if (!order) {
+    return res.status(404).send({ message: "Order not Found!" });
+  } else {
+    return res.status(200).send({ message: order });
+  }
 };
