@@ -212,7 +212,7 @@ module.exports.createProductReview = async (req, res) => {
 
 // Get All Reviews
 module.exports.getAllReviews = async (req, res) => {
-  let product = await Product.findById(req.query.id);
+  let product = await Product.findById(req.query.id).populate("user");
 
   if (!product) return res.status(400).send("Product Not Found!");
 
